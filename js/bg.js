@@ -1,4 +1,4 @@
-var enableProxy = function() {
+var enableProxy = function () {
     _proxy.update(function success() {
         controlCheck({
             controllable: true
@@ -11,22 +11,22 @@ var enableProxy = function() {
     });
 }
 
-var disableProxy = function() {
-    _proxy.disable(function() {
+var disableProxy = function () {
+    _proxy.disable(function () {
         iconSwitch(false);
     });
 }
 
-var controlCheck = function(details) {
+var controlCheck = function (details) {
     if (!details.controllable) {
-        chrome['storage'].sync.set({
+        chrome['storage']['sync'].set({
             'proxIsOn': false,
             'proxIsControllable': false
         });
         badgeSwitch(true);
         return false;
     } else {
-        chrome['storage'].sync.set({
+        chrome['storage']['sync'].set({
             'proxIsControllable': true
         });
         badgeSwitch(false);
@@ -34,27 +34,27 @@ var controlCheck = function(details) {
     }
 };
 
-var iconSwitch = function(isActive) {
+var iconSwitch = function (isActive) {
     var iconPath = isActive ? '/img/128_on.png' : '/img/128_off.png';
-    chrome.browserAction.setIcon({
+    chrome['browserAction'].setIcon({
         path: iconPath
     });
 };
 
-var badgeSwitch = function(isVisible) {
+var badgeSwitch = function (isVisible) {
     var badgeText = isVisible ? '!' : '';
-    chrome.browserAction.setBadgeText({
+    chrome['browserAction'].setBadgeText({
         text: badgeText
     });
-    chrome.browserAction.setBadgeBackgroundColor({
+    chrome['browserAction'].setBadgeBackgroundColor({
         color: '#F00'
     });
 }
 
-document.addEventListener("DOMContentLoaded", function(event) {
+document.addEventListener("DOMContentLoaded", function (event) {
     _proxy.onControlChange(controlCheck);
 
-    chrome['storage'].onChanged.addListener(function(change) {
+    chrome['storage'].onChanged.addListener(function (change) {
         if (change.proxIsOn !== undefined) {
             if (change.proxIsOn.newValue === true) {
                 enableProxy();
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         domain: "telegram.org"
     });
 
-    chrome['storage'].sync.get(function(change) {
+    chrome['storage']['sync'].get(function (change) {
         if (change.proxIsOn !== undefined) {
             if (change.proxIsOn === true) {
                 enableProxy();
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 disableProxy();
             }
         } else {
-            chrome['storage'].sync.set({
+            chrome['storage']['sync'].set({
                 'proxIsOn': true
             });
         }

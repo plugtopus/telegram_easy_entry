@@ -1,4 +1,4 @@
-var Proxy = function() {
+var Proxy = function () {
     var self = this;
     self.controllable = false;
     self.onControlChangeListener = null;
@@ -13,7 +13,7 @@ var Proxy = function() {
 
     var proxySources = [{
         url: 'https://drah7iczdw1tu.cloudfront.net/v1/servers',
-        handler: function(list) {
+        handler: function (list) {
             if (!list.countries) {
                 return {};
             }
@@ -39,7 +39,7 @@ var Proxy = function() {
     },
         {
             url: 'https://s3-us-west-2.amazonaws.com/hssext/chrome-hss.json',
-            handler: function(list) {
+            handler: function (list) {
                 if (!list.servers) {
                     return {};
                 }
@@ -57,6 +57,7 @@ var Proxy = function() {
 
                     return hash;
                 }
+
                 var servers = [];
                 var hash = createUserHash();
 
@@ -88,14 +89,15 @@ var Proxy = function() {
     function jsonRequest(url, callback) {
         var xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
-        xhr.onload = function() {
+        xhr.onload = function () {
             var list = {};
             try {
                 list = JSON.parse(xhr.responseText);
-            } catch (e) {}
+            } catch (e) {
+            }
             callback && callback(list);
         };
-        xhr.onerror = function() {
+        xhr.onerror = function () {
             callback && callback({});
         };
         xhr.send();
@@ -110,7 +112,7 @@ var Proxy = function() {
             callback && callback();
         } else {
             (function getProxyServers(sourceIndex) {
-                jsonRequest(proxySources[sourceIndex].url, function(list) {
+                jsonRequest(proxySources[sourceIndex].url, function (list) {
                     var srvrs = proxySources[sourceIndex].handler(list);
                     if (srvrs && srvrs.length) {
                         localStorage.lastServersListUpdated = now;
@@ -148,7 +150,7 @@ var Proxy = function() {
     }
 
     function getServersForCurrentUsage(callback) {
-        actualizeServers(function() {
+        actualizeServers(function () {
             var strings_count = 4;
             var random_servers = [];
             if (servers.length && strings_count >= servers.length) {
@@ -171,8 +173,7 @@ var Proxy = function() {
             callback && callback(random_servers);
         });
     }
-
-    self.generatePacConfig = function(proxyString, conditionString) {
+    self.generatePacConfig = function (proxyString, conditionString) {
         return {
             mode: 'pac_script',
             pacScript: {
@@ -184,8 +185,7 @@ var Proxy = function() {
             }
         };
     }
-
-    self.generateRegExpConditions = function() {
+    self.generateRegExpConditions = function () {
         var result = '(';
         for (var i = 0; i < currentDomains.length; i++) {
             if (i > 0) {
@@ -199,8 +199,7 @@ var Proxy = function() {
         }
         return result;
     }
-
-    self.generateShellExpConditions = function() {
+    self.generateShellExpConditions = function () {
         var result = '';
         for (var i = 0; i < currentDomains.length; i++) {
             if (i > 0) {
@@ -213,16 +212,15 @@ var Proxy = function() {
         }
         return result;
     }
-
-    self.update = function(success, error) {
-        getServersForCurrentUsage(function(current_servers) {
+    self.update = function (success, error) {
+        getServersForCurrentUsage(function (current_servers) {
             var result_pac_string = '';
             for (var i = 0; i < current_servers.length; i++) {
                 result_pac_string += ' ' + current_servers[i].pac_string;
             }
             currentServers = current_servers;
 
-            var has_auth_listener = chrome.webRequest.onAuthRequired.hasListener(provideProxyCredentials);
+            var has_auth_listener = chrome['webRequest'].onAuthRequired.hasListener(provideProxyCredentials);
             var need_auth_listener = false;
             for (var i = 0; i < currentServers.length; i++) {
                 if (currentServers[i].username) {
@@ -231,30 +229,28 @@ var Proxy = function() {
                 }
             }
             if (need_auth_listener && !has_auth_listener) {
-                chrome.webRequest.onAuthRequired.addListener(provideProxyCredentials, {
+                chrome['webRequest'].onAuthRequired.addListener(provideProxyCredentials, {
                     urls: ['http://*/*', 'https://*/*']
                 }, ['blocking']);
             } else if (!need_auth_listener && has_auth_listener) {
-                if (chrome.webRequest.onAuthRequired.hasListener(provideProxyCredentials)) {
-                    chrome.webRequest.onAuthRequired.removeListener(provideProxyCredentials);
+                if (chrome['webRequest'].onAuthRequired.hasListener(provideProxyCredentials)) {
+                    chrome['webRequest'].onAuthRequired.removeListener(provideProxyCredentials);
                 }
             }
 
             self.proxySet && self.proxySet(result_pac_string, success, error);
         });
     }
-
-    self.disable = function(callback) {
+    self.disable = function (callback) {
         self.proxyClear && self.proxyClear(callback);
 
         currentServers = [];
 
-        if (chrome.webRequest.onAuthRequired.hasListener(provideProxyCredentials)) {
-            chrome.webRequest.onAuthRequired.removeListener(provideProxyCredentials);
+        if (chrome['webRequest'].onAuthRequired.hasListener(provideProxyCredentials)) {
+            chrome['webRequest'].onAuthRequired.removeListener(provideProxyCredentials);
         }
     }
-
-    self.getBaseDomainFromUrl = function(url) {
+    self.getBaseDomainFromUrl = function (url) {
         var matches = url.toLowerCase().match(/^https?:\/\/([^\/:?#]+)(?:[\/:?#]|$)/i);
         var domain = matches && matches[1];
         if (domain) {
@@ -277,30 +273,26 @@ var Proxy = function() {
         }
         return null;
     }
-
-    self.addSite = function(link) {
+    self.addSite = function (link) {
         var domain = link.domain || self.getBaseDomainFromUrl(link.url);
         if (domain && currentDomains.indexOf(domain) < 0) {
             currentDomains.push(domain);
         }
         return domain;
     }
-
-    self.removeSite = function(link) {
+    self.removeSite = function (link) {
         var domain = link.domain || self.getBaseDomainFromUrl(link.url);
         var index = currentDomains.indexOf(domain);
         if (index >= 0) {
             currentDomains.splice(index, 1);
         }
     }
-
-    self.existsSite = function(link) {
+    self.existsSite = function (link) {
         var domain = link.domain || self.getBaseDomainFromUrl(link.url);
         return currentDomains.indexOf(domain) >= 0;
     }
-
-    self.onProxySettingsChange = function() {
-        self.checkControllable(function(new_value) {
+    self.onProxySettingsChange = function () {
+        self.checkControllable(function (new_value) {
             if (new_value != self.controllable) {
                 self.controllable = new_value;
                 if (self.onControlChangeListener) {
@@ -311,13 +303,11 @@ var Proxy = function() {
             }
         });
     }
-
-    self.onControlChange = function(listener) {
+    self.onControlChange = function (listener) {
         self.onControlChangeListener = listener;
     };
-    self.isControllable = function() {
+    self.isControllable = function () {
         return self.controllable;
     }
-
     self.init && self.init();
 }

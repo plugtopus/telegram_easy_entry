@@ -1,20 +1,20 @@
 document.addEventListener("DOMContentLoaded", function(event) {
     chrome['storage'].sync.get(function(change) {
-        var checkbox = document.querySelector('#checkbox');
+        var status = document.querySelector('#checkbox');
         var sites = document.querySelectorAll('.list-item');
         var txt = document.querySelector('.error');
         if (change.proxIsControllable) {
             txt.style.display = 'none';
-            checkbox.removeAttribute('disabled');
+            status.removeAttribute('disabled');
             if (change.proxIsOn !== undefined) {
                 if (change.proxIsOn) {
-                    checkbox.setAttribute('checked', 'checked');
+                    status.setAttribute('checked', 'checked');
                     for (var i = 0; i < sites.length; i++) {
                         sites[i].classList.remove('off');
                         sites[i].classList.add('on');
                     }
                 } else {
-                    checkbox.removeAttribute('checked');
+                    status.removeAttribute('checked');
                     for (var i = 0; i < sites.length; i++) {
                         sites[i].classList.remove('on');
                         sites[i].classList.add('off');
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 }
             }
         } else {
-            checkbox.setAttribute('disabled', '');
+            status.setAttribute('disabled', '');
             txt.style.display = 'block';
             txt.textContent = chrome.i18n.getMessage("popupMessage_error");
         }
