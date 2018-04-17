@@ -1,0 +1,20 @@
+﻿{
+   "desc": {
+      "message": "Allows you to easily use the Telegram as before. Just install and go."
+   },
+   "name": {
+      "message": "Telegram - easy entry"
+   },
+   "shortname": {
+      "message": "Telegram - entry"
+   },
+   "title": {
+      "message": "Telegram - easy entry"
+   },
+   "popupMessage_error": {
+      "message": "Proxy conflict! Proxy server settings are monitored by another extension or can not be installed."
+   },
+   "popupMessage_info": {
+      "message": "Status"
+   }
+}
